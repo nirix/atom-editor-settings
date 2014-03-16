@@ -61,13 +61,15 @@ module.exports =
     editor = view.getEditor()
 
     # View related config
-    view.setShowInvisibles config.showInvisibles if config.showInvisibles?
-    view.setFontSize       config.fontSize       if config.fontSize?
-    view.setFontFamily     config.fontFamily     if config.fontFamily?
+    view.setShowInvisibles  config.showInvisibles  if config.showInvisibles?
+    view.setFontSize        config.fontSize        if config.fontSize?
+    view.setFontFamily      config.fontFamily      if config.fontFamily?
+    view.setShowIndentGuide config.showIndentGuide if config.showIndentGuide?
 
     # Editor related config
     editor.setTabLength config.tabLength if config.tabLength?
     editor.setSoftTabs  config.softTabs  if config.softTabs?
+    editor.setSoftWrap  config.softWrap  if config.softWrap?
 
   # Loads the config for the passed grammar.
   loadGrammarConfig: (grammarName) ->
