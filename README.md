@@ -4,8 +4,33 @@ Adds support for per-language, file extension and directory editor settings.
 
 ## How to use it
 
-The language/grammar settings files are saved in the `grammar-config` directory
-located in the main Atom configuration directory.
+The language/grammar settings files are saved in the `grammar-config` directory located
+in the main Atom configuration directory with a lower-case file name format.
+
+For example, the config file for CoffeeScript would be `coffeescript.cson`.
+
+### Supported settings
+
+The API for setting editor settings currently only supports:
+
+- Font family
+- Font size
+- Tab length
+- Soft/hard tabs
+- Soft wrap
+- Showing/hiding invisibles
+- Showing/hiding indent guide
+
+### Example configuration
+
+The following example is for CoffeeScript, it sets the tab length and shows invisible
+characters, however it hides invisible characters if the file extension is `.cson`.
+
+    'tabLength': 2
+    'showInvisibles': true
+    'extensionConfig':
+      'cson':
+        'showInvisibles': false
 
 ## Features
 
