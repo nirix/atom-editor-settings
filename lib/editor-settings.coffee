@@ -16,13 +16,8 @@ module.exports =
     if not fs.existsSync @configDir
       fs.mkdirSync @configDir
 
-    # Update editor when focusing the workspace view.
-    atom.workspaceView.on 'focusin', (event) =>
-      view = event.targetView()
-
-      # Check if it's an editor
-      if view?.getModel? and view.getEditor?
-        @setEditorConfig view
+    atom.workspaceView.on "pane-container:active-pane-item-changed", => @updateCurrentEditor()
+    atom.workspaceView.on "editor:grammar-changed", => @updateCurrentEditor()
 
     atom.workspaceView.command 'editor-settings:open-grammar-config', => @editCurrentGrammarConfig()
 
