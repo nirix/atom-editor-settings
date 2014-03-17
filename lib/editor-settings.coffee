@@ -30,17 +30,23 @@ module.exports =
   setEditorConfig: (view) ->
     return unless view.getEditor?
 
-    editor        = view.getEditor()
-    grammar       = editor.getGrammar()
-    grammarName   = @fileNameFor(grammar.name)
-    fileExtension = path.extname(editor.getPath()).substring(1)
+    grammarName = @fileNameFor(view.getEditor().getGrammar().name)
 
     # (Re)set the default editor settings, this is done in case a setting was
     # removed from the file.
     @setDefaultConfig view
 
-    # Load the config if it hasn't already been loaded.
-    @loadGrammarConfig(grammarName) unless @grammarConfig[grammarName]
+    if @grammarConfig[grammarName]
+      @configureEditor(view, @grammarConfig[grammarName])
+    else
+      @loadGrammarConfig grammarName, =>
+        @configureEditor(view, @grammarConfig[grammarName])
+
+  configureEditor: (view, config) ->
+    editor        = view.getEditor()
+    grammar       = editor.getGrammar()
+    grammarName   = @fileNameFor(grammar.name)
+    fileExtension = path.extname(editor.getPath()).substring(1)
 
     # Grammar config
     if @grammarConfig[grammarName]?
@@ -62,29 +68,32 @@ module.exports =
   setConfig: (view, config) ->
     editor = view.getEditor()
 
-    # View related config
-    view.setShowInvisibles  config.showInvisibles  if config.showInvisibles?
-    view.setFontSize        config.fontSize        if config.fontSize?
-    view.setFontFamily      config.fontFamily      if config.fontFamily?
-    view.setShowIndentGuide config.showIndentGuide if config.showIndentGuide?
+    # Set settings on the next loop, this seems to reduce the lag when switching tabs
+    # as opposed doing it immediately.
+    process.nextTick =>
+      # View related config
+      view.setShowInvisibles  config.showInvisibles  if config.showInvisibles?
+      view.setFontSize        config.fontSize        if config.fontSize?
+      view.setFontFamily      config.fontFamily      if config.fontFamily?
+      view.setShowIndentGuide config.showIndentGuide if config.showIndentGuide?
 
-    # Editor related config
-    editor.setTabLength config.tabLength if config.tabLength?
-    editor.setSoftTabs  config.softTabs  if config.softTabs?
-    editor.setSoftWrap  config.softWrap  if config.softWrap?
+      # Editor related config
+      editor.setTabLength config.tabLength if config.tabLength?
+      editor.setSoftTabs  config.softTabs  if config.softTabs?
+      editor.setSoftWrap  config.softWrap  if config.softWrap?
 
   # Loads the config for the passed grammar.
-  loadGrammarConfig: (grammarName) ->
+  loadGrammarConfig: (grammarName, callback) ->
     filename = @filePathFor(grammarName)
 
-    if fs.existsSync filename
-      @watchGrammarConfig grammarName
-      config = CSON.readFileSync(filename)
-
-      if config
-        config.extensionConfig = {} unless config.extensionConfig?
-
-      @grammarConfig[grammarName] = config
+    fs.exists filename, (exists) =>
+      if exists
+        @watchGrammarConfig grammarName
+        CSON.readFile filename, (error, config = {}) =>
+          if config
+            config.extensionConfig = {} unless config.extensionConfig?
+            @grammarConfig[grammarName] = config
+            callback()
 
   # Watches the grammar config file for changes and reloads it.
   watchGrammarConfig: (grammarName) ->
@@ -95,8 +104,8 @@ module.exports =
       # the current editor, which may not be the config file,
       # but let's just do it anyway.
       file.on 'moved removed contents-changed', =>
-        @loadGrammarConfig grammarName
-        @updateCurrentEditor()
+        @loadGrammarConfig grammarName, =>
+          @updateCurrentEditor()
 
       @watching[grammarName] = file
 
@@ -112,7 +121,6 @@ module.exports =
   # Returns the path for the grammar config file.
   filePathFor: (grammarName) ->
     @configDir + grammarName + ".cson"
-
 
   editCurrentGrammarConfig: ->
     grammar     = atom.workspace.getActiveEditor()?.getGrammar()
