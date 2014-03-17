@@ -28,7 +28,7 @@ module.exports =
 
   # Sets the config for the passed editor.
   setEditorConfig: (view) ->
-    return unless view.getEditor?
+    return unless view and view.getEditor?
 
     grammarName = @fileNameFor(view.getEditor().getGrammar().name)
 
