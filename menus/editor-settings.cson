@@ -1,0 +1,16 @@
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      {
+        'label': 'Editor settings',
+        'submenu': [
+          {
+            'label': 'Edit grammar config'
+            'command': 'editor-settings:open-grammar-config'
+          }
+        ]
+      }
+    ]
+  }
+]

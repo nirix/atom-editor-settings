@@ -24,6 +24,8 @@ module.exports =
       if view?.getModel? and view.getEditor?
         @setEditorConfig view
 
+    atom.workspaceView.command 'editor-settings:open-grammar-config', => @editCurrentGrammarConfig()
+
   # Sets the config for the passed editor.
   setEditorConfig: (view) ->
     return unless view.getEditor?
@@ -79,7 +81,8 @@ module.exports =
       @watchGrammarConfig grammarName
       config = CSON.readFileSync(filename)
 
-      config.extensionConfig = {} unless config.extensionConfig?
+      if config
+        config.extensionConfig = {} unless config.extensionConfig?
 
       @grammarConfig[grammarName] = config
 
@@ -109,3 +112,15 @@ module.exports =
   # Returns the path for the grammar config file.
   filePathFor: (grammarName) ->
     @configDir + grammarName + ".cson"
+
+
+  editCurrentGrammarConfig: ->
+    grammar     = atom.workspace.getActiveEditor()?.getGrammar()
+    grammarName = @fileNameFor(grammar.name)
+    filepath    = @filePathFor(grammarName)
+
+    if not fs.existsSync filepath
+      fs.writeFileSync filepath, ''
+      @watchGrammarConfig grammarName
+
+    atom.workspace.open filepath
