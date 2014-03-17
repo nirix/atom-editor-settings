@@ -32,55 +32,57 @@ module.exports =
 
     grammarName = @fileNameFor(view.getEditor().getGrammar().name)
 
-    # (Re)set the default editor settings, this is done in case a setting was
-    # removed from the file.
-    @setDefaultConfig view
-
     if @grammarConfig[grammarName]
       @configureEditor(view, @grammarConfig[grammarName])
     else
       @loadGrammarConfig grammarName, =>
         @configureEditor(view, @grammarConfig[grammarName])
 
+  # Configures the editor with the passed configuration.
   configureEditor: (view, config) ->
     editor        = view.getEditor()
     grammar       = editor.getGrammar()
     grammarName   = @fileNameFor(grammar.name)
     fileExtension = path.extname(editor.getPath()).substring(1)
 
+    # Get defaults
+    config = @mergeConfig atom.config.defaultSettings.editor,
+                          atom.config.settings.editor
+
     # Grammar config
     if @grammarConfig[grammarName]?
-      @setConfig view, @grammarConfig[grammarName]
+      config = @mergeConfig config, @grammarConfig[grammarName]
 
-      # Grammar file extension config
-      if @grammarConfig[grammarName].extensionConfig[fileExtension]?
-        @setConfig view, @grammarConfig[grammarName].extensionConfig[fileExtension]
+      # Extension specific
+      if config.extensionConfig[fileExtension]?
+        config = @mergeConfig config, config.extensionConfig[fileExtension]
 
-  # Sets the default settings for the passed editor.
-  setDefaultConfig: (view) ->
-    # Default settings
-    @setConfig view, atom.config.defaultSettings.editor
-
-    # User settings
-    @setConfig view, atom.config.settings.editor
+    # Set the config
+    @setConfig view, config
 
   # Sets the config for the passed editor from the passed config.
   setConfig: (view, config) ->
     editor = view.getEditor()
 
-    # Set settings on the next loop, this seems to reduce the lag when switching tabs
-    # as opposed doing it immediately.
-    process.nextTick =>
-      # View related config
-      view.setShowInvisibles  config.showInvisibles  if config.showInvisibles?
-      view.setFontSize        config.fontSize        if config.fontSize?
-      view.setFontFamily      config.fontFamily      if config.fontFamily?
-      view.setShowIndentGuide config.showIndentGuide if config.showIndentGuide?
+    # View related config
+    view.setShowInvisibles  config.showInvisibles  if config.showInvisibles?
+    view.setFontSize        config.fontSize        if config.fontSize?
+    view.setFontFamily      config.fontFamily      if config.fontFamily?
+    view.setShowIndentGuide config.showIndentGuide if config.showIndentGuide?
 
-      # Editor related config
-      editor.setTabLength config.tabLength if config.tabLength?
-      editor.setSoftTabs  config.softTabs  if config.softTabs?
-      editor.setSoftWrap  config.softWrap  if config.softWrap?
+    # Editor related config
+    editor.setTabLength config.tabLength if config.tabLength?
+    editor.setSoftTabs  config.softTabs  if config.softTabs?
+    editor.setSoftWrap  config.softWrap  if config.softWrap?
+
+  # Merge two configurations together.
+  mergeConfig: (first, second) ->
+    config = first
+
+    for k, v of second
+      config[k] = v
+
+    return config
 
   # Loads the config for the passed grammar.
   loadGrammarConfig: (grammarName, callback) ->
