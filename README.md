@@ -18,6 +18,7 @@ The API for setting editor settings currently only supports:
 - Tab length
 - Soft/hard tabs
 - Soft wrap
+- Invisible characters
 - Showing/hiding invisibles
 - Showing/hiding indent guide
 
@@ -28,6 +29,9 @@ characters, however it hides invisible characters if the file extension is `.cso
 
     'tabLength': 2
     'showInvisibles': true
+    'invisibles':
+      'space': '*'
+      'tab': '-'
     'extensionConfig':
       'cson':
         'showInvisibles': false
