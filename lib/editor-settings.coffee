@@ -65,6 +65,7 @@ module.exports =
     view.setFontSize        config.fontSize        if config.fontSize?
     view.setFontFamily      config.fontFamily      if config.fontFamily?
     view.setShowIndentGuide config.showIndentGuide if config.showIndentGuide?
+    view.setLineHeight      config.lineHeight      if config.lineHeight?
 
     # Editor related config
     editor.setTabLength config.tabLength if config.tabLength?
