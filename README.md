@@ -70,8 +70,3 @@ each directory in the files path for a config file and stopping there.
 Where as the second would continue scanning until it reaches the topmost directory
 then merging the them together. The settings in the config file closest to the file
 takes precedence.
-
-#### Why no per-project support
-
-The per-directory feature can be used as per-project simply by placing the config
-file in the projects root directory.
