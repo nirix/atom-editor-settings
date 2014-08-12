@@ -36,12 +36,25 @@ characters, however it hides invisible characters if the file extension is `.cso
       'cson':
         'showInvisibles': false
 
+#### Example project configuration
+
+All options not nested under a specific grammar are used for all grammar and extensions.
+
+    'tabLength': 2
+    'php'
+      'tabLength': 4
+      'softTabs': true
+      'extensionConfig':
+        'phtml':
+          'softTabs': false
+
 ## Features
 
 ### Completed
 
 - Per-language support
 - Per-file extension support
+- Per-project support
 
 ### Planned
 

@@ -3,6 +3,7 @@ fs     = require 'fs'
 CSON   = require 'season'
 {File} = require 'pathwatcher'
 path   = require 'path'
+CSONParser = require 'cson-safe'
 
 module.exports =
   grammarConfig: {}
@@ -33,6 +34,17 @@ module.exports =
       @loadGrammarConfig grammarName, =>
         @configureEditor(view, @grammarConfig[grammarName])
 
+  loadDirectoryConfig: (grammarName) ->
+    # Have to check if the file exists another way because this:
+    #   atom.project.rootDirectory.contains(".editor-settings")
+    # and `isFile` returns false.
+
+    configFilePath = atom.project.rootDirectory.path + "/.editor-settings"
+
+    if fs.existsSync(configFilePath)
+      contents = fs.readFileSync(configFilePath)
+      CSONParser.parse(contents)
+
   # Configures the editor with the passed configuration.
   configureEditor: (view, config) ->
     editor        = view.getEditor()
@@ -51,6 +63,20 @@ module.exports =
       # Extension specific
       if config.extensionConfig[fileExtension]?
         config = @mergeConfig config, config.extensionConfig[fileExtension]
+
+    # Project config
+    if projectConfig = @loadDirectoryConfig(grammarName)
+      config = @mergeConfig config, projectConfig
+
+      # Grammar specific
+      if projectConfig[grammarName]?
+        config = @mergeConfig config, projectConfig[grammarName]
+
+        # Grammar extension specific
+        projectGrammarConfig = projectConfig[grammarName]
+        if projectGrammarConfig.extensionConfig?[fileExtension]?
+          config = @mergeConfig config,
+                                projectGrammarConfig.extensionConfig[fileExtension]
 
     # Set the config
     @setConfig view, config
