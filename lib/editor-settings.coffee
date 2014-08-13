@@ -34,17 +34,32 @@ module.exports =
       @loadGrammarConfig grammarName, =>
         @configureEditor(view, @grammarConfig[grammarName])
 
+  # Load directory config
+  loadDirectoryConfig: (path) ->
+    filePath = path + "/.editor-settings"
+    if fs.existsSync(filePath)
+      contents = fs.readFileSync(filePath)
+
+      if contents.length > 1
+        CSONParser.parse(contents)
+
   # Loads the project specific configuration
-  loadProjectConfig: (grammarName) ->
-    # Have to check if the file exists another way because this:
-    #   atom.project.rootDirectory.contains(".editor-settings")
-    # and `isFile` returns false.
+  loadProjectConfig: ->
+    @loadDirectoryConfig(atom.project.rootDirectory.path)
 
-    configFilePath = atom.project.rootDirectory.path + "/.editor-settings"
+  # Merges together the grammar and file extension specific settings from an
+  # `.editor-settings` file.
+  mergeDirectoryConfig: (directoryConfig, grammarName, fileExtension) ->
+    config = directoryConfig
 
-    if fs.existsSync(configFilePath)
-      contents = fs.readFileSync(configFilePath)
-      CSONParser.parse(contents)
+    if directoryConfig?[grammarName]?
+      grammarConfig = directoryConfig[grammarName]
+      config = @mergeConfig(config, grammarConfig)
+
+      if grammarConfig.extensionConfig?[fileExtension]?
+        config = @mergeConfig(config, grammarConfig.extensionConfig[fileExtension])
+
+    return config
 
   # Configures the editor with the passed configuration.
   configureEditor: (view, config) ->
@@ -67,18 +82,20 @@ module.exports =
 
     # Project config
     if atom.project?.path?
-      if projectConfig = @loadProjectConfig(grammarName)
-        config = @mergeConfig config, projectConfig
+      projectConfig = @loadProjectConfig()
 
-        # Grammar specific
-        if projectConfig[grammarName]?
-          config = @mergeConfig config, projectConfig[grammarName]
+      if projectConfig?
+        projectConfig = @mergeDirectoryConfig(projectConfig, grammarName, fileExtension)
+        config = @mergeConfig(config, projectConfig)
 
-          # Grammar extension specific
-          projectGrammarConfig = projectConfig[grammarName]
-          if projectGrammarConfig.extensionConfig?[fileExtension]?
-            config = @mergeConfig config,
-                                  projectGrammarConfig.extensionConfig[fileExtension]
+    # Load directory config
+    if editor?.buffer?.file?.getParent()?.path?
+      directoryPath = editor.buffer.file.getParent().path
+      directoryConfig = @loadDirectoryConfig(directoryPath)
+
+      if directoryConfig?
+        directoryConfig = @mergeDirectoryConfig(directoryConfig, grammarName, fileExtension)
+        config = @mergeConfig(config, directoryConfig)
 
     # Set the config
     @setConfig view, config

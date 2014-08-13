@@ -50,23 +50,9 @@ All options not nested under a specific grammar are used for all grammar and ext
 
 ## Features
 
-### Completed
-
 - Per-language support
 - Per-file extension support
 - Per-project support
-
-### Planned
-
 - Per-directory support
 
-## Not so frequently asked questions
-
-#### How will per-directory support work?
-
-Still thinking about that, there are two ways of doing it. The first being scanning
-each directory in the files path for a config file and stopping there.
-
-Where as the second would continue scanning until it reaches the topmost directory
-then merging the them together. The settings in the config file closest to the file
-takes precedence.
+If there is a feature you'd like added simply create an issue or fork and implement it and send a pull request.
