@@ -34,7 +34,8 @@ module.exports =
       @loadGrammarConfig grammarName, =>
         @configureEditor(view, @grammarConfig[grammarName])
 
-  loadDirectoryConfig: (grammarName) ->
+  # Loads the project specific configuration
+  loadProjectConfig: (grammarName) ->
     # Have to check if the file exists another way because this:
     #   atom.project.rootDirectory.contains(".editor-settings")
     # and `isFile` returns false.
@@ -65,7 +66,7 @@ module.exports =
         config = @mergeConfig config, config.extensionConfig[fileExtension]
 
     # Project config
-    if projectConfig = @loadDirectoryConfig(grammarName)
+    if projectConfig = @loadProjectConfig(grammarName)
       config = @mergeConfig config, projectConfig
 
       # Grammar specific
