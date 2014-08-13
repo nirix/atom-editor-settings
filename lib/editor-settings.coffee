@@ -66,18 +66,19 @@ module.exports =
         config = @mergeConfig config, config.extensionConfig[fileExtension]
 
     # Project config
-    if projectConfig = @loadProjectConfig(grammarName)
-      config = @mergeConfig config, projectConfig
+    if atom.project?.path?
+      if projectConfig = @loadProjectConfig(grammarName)
+        config = @mergeConfig config, projectConfig
 
-      # Grammar specific
-      if projectConfig[grammarName]?
-        config = @mergeConfig config, projectConfig[grammarName]
+        # Grammar specific
+        if projectConfig[grammarName]?
+          config = @mergeConfig config, projectConfig[grammarName]
 
-        # Grammar extension specific
-        projectGrammarConfig = projectConfig[grammarName]
-        if projectGrammarConfig.extensionConfig?[fileExtension]?
-          config = @mergeConfig config,
-                                projectGrammarConfig.extensionConfig[fileExtension]
+          # Grammar extension specific
+          projectGrammarConfig = projectConfig[grammarName]
+          if projectGrammarConfig.extensionConfig?[fileExtension]?
+            config = @mergeConfig config,
+                                  projectGrammarConfig.extensionConfig[fileExtension]
 
     # Set the config
     @setConfig view, config
