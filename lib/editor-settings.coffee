@@ -119,7 +119,10 @@ module.exports =
 
   # Merge two configurations together.
   mergeConfig: (first, second) ->
-    config = first
+    config = {}
+
+    for k, v of first
+     config[k] = v
 
     for k, v of second
       config[k] = v
