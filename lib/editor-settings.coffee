@@ -105,7 +105,7 @@ module.exports =
     editor = view.getEditor()
 
     # View related config
-    view.setInvisibles      config.invisibles      if config.invisibles?
+    # view.setInvisibles      config.invisibles      if config.invisibles?
     view.setShowInvisibles  config.showInvisibles  if config.showInvisibles?
     view.setFontSize        config.fontSize        if config.fontSize?
     view.setFontFamily      config.fontFamily      if config.fontFamily?
