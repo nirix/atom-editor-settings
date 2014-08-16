@@ -105,8 +105,6 @@ module.exports =
     editor = view.getEditor()
 
     # View related config
-    # view.setInvisibles      config.invisibles      if config.invisibles?
-    view.setShowInvisibles  config.showInvisibles  if config.showInvisibles?
     view.setFontSize        config.fontSize        if config.fontSize?
     view.setFontFamily      config.fontFamily      if config.fontFamily?
     view.setShowIndentGuide config.showIndentGuide if config.showIndentGuide?
@@ -116,6 +114,12 @@ module.exports =
     editor.setTabLength config.tabLength if config.tabLength?
     editor.setSoftTabs  config.softTabs  if config.softTabs?
     editor.setSoftWrap  config.softWrap  if config.softWrap?
+
+    # Invisible characters
+    if not config.showInvisibles
+      editor.displayBuffer.setInvisibles false
+    else
+      editor.displayBuffer.setInvisibles config.invisibles
 
   # Merge two configurations together.
   mergeConfig: (first, second) ->

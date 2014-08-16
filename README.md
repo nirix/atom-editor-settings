@@ -18,6 +18,7 @@ The API for setting editor settings currently only supports:
 - Tab length
 - Soft/hard tabs
 - Soft wrap
+- Invisible characters
 - Showing/hiding invisibles
 - Showing/hiding indent guide
 
