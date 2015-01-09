@@ -114,6 +114,7 @@ module.exports =
     editor.setTabLength config.tabLength if config.tabLength?
     editor.setSoftTabs  config.softTabs  if config.softTabs?
     editor.setSoftWrap  config.softWrap  if config.softWrap?
+    editor.setEncoding  config.encoding  if config.encoding?
 
     # Invisible characters
     if not config.showInvisibles
