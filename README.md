@@ -13,14 +13,15 @@ For example, the config file for CoffeeScript would be `coffeescript.cson`.
 
 The API for setting editor settings currently only supports:
 
-- Font family
-- Font size
-- Tab length
-- Soft/hard tabs
-- Soft wrap
-- Invisible characters
-- Showing/hiding invisibles
-- Showing/hiding indent guide
+- Font family (fontFamily)
+- Font size (fontSize)
+- Tab length (tabLength)
+- Soft/hard tabs (softTabs)
+- Soft wrap (softWrap)
+- Invisible characters (invisibles)
+- Showing/hiding invisibles (showInvisibles)
+- Showing/hiding indent guide (showIndentGuide)
+- Encoding (encoding)
 
 ### Example configuration
 
