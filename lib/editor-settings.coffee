@@ -17,22 +17,28 @@ module.exports =
     if not fs.existsSync @configDir
       fs.mkdirSync @configDir
 
-    atom.workspaceView.on "pane-container:active-pane-item-changed", => @updateCurrentEditor()
-    atom.workspaceView.on "editor:grammar-changed", => @updateCurrentEditor()
+    editor = atom.workspace.getActiveTextEditor()
 
-    atom.workspaceView.command 'editor-settings:open-grammar-config', => @editCurrentGrammarConfig()
+    atom.workspace.onDidChangeActivePaneItem => @updateCurrentEditor()
+
+    atom.commands.add 'atom-text-editor',
+      'editor-settings:open-grammar-config': => @editCurrentGrammarConfig()
+
+    @updateCurrentEditor()
+
+    # atom.workspace.command 'editor-settings:open-grammar-config', => @editCurrentGrammarConfig()
 
   # Sets the config for the passed editor.
-  setEditorConfig: (view) ->
-    return unless view and view.getEditor?
+  setEditorConfig: (editor) ->
+    return unless editor
 
-    grammarName = @fileNameFor(view.getEditor().getGrammar().name)
+    grammarName = @fileNameFor(editor.getGrammar().name)
 
     if @grammarConfig[grammarName]
-      @configureEditor(view, @grammarConfig[grammarName])
+      @configureEditor(editor, @grammarConfig[grammarName])
     else
       @loadGrammarConfig grammarName, =>
-        @configureEditor(view, @grammarConfig[grammarName])
+        @configureEditor(editor, @grammarConfig[grammarName])
 
   # Load directory config
   loadDirectoryConfig: (path) ->
@@ -62,8 +68,7 @@ module.exports =
     return config
 
   # Configures the editor with the passed configuration.
-  configureEditor: (view, config) ->
-    editor        = view.getEditor()
+  configureEditor: (editor, config) ->
     grammar       = editor.getGrammar()
     grammarName   = @fileNameFor(grammar.name)
     fileExtension = path.extname(editor.getPath()).substring(1)
@@ -98,17 +103,15 @@ module.exports =
         config = @mergeConfig(config, directoryConfig)
 
     # Set the config
-    @setConfig view, config
+    @setConfig editor, config
 
   # Sets the config for the passed editor from the passed config.
-  setConfig: (view, config) ->
-    editor = view.getEditor()
-
+  setConfig: (editor, config) ->
     # View related config
-    view.setFontSize        config.fontSize        if config.fontSize?
-    view.setFontFamily      config.fontFamily      if config.fontFamily?
-    view.setShowIndentGuide config.showIndentGuide if config.showIndentGuide?
-    view.setLineHeight      config.lineHeight      if config.lineHeight?
+    # view.setFontSize        config.fontSize        if config.fontSize?
+    # view.setFontFamily      config.fontFamily      if config.fontFamily?
+    # view.setShowIndentGuide config.showIndentGuide if config.showIndentGuide?
+    # view.setLineHeight      config.lineHeight      if config.lineHeight?
 
     # Editor related config
     editor.setTabLength config.tabLength if config.tabLength?
@@ -169,8 +172,8 @@ module.exports =
 
   # Updates the currently active editor config.
   updateCurrentEditor: ->
-    view = atom.workspaceView.getActiveView()
-    @setEditorConfig view
+    editor = atom.workspace.getActiveTextEditor()
+    @setEditorConfig editor
 
   # Converts the grammar name to a file name.
   fileNameFor: (grammarName) ->
