@@ -9,8 +9,8 @@
     "atom": ">0.50.0"
   },
   "dependencies": {
-    "season": "~2.0.0",
-    "cson-safe": "~0.1.1",
-    "pathwatcher": "~2.0.0"
+    "season": "~5.1.0",
+    "cson-parser": "~1.0.0",
+    "pathwatcher": "~4.1.0"
   }
 }

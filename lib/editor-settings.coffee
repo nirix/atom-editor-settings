@@ -3,7 +3,7 @@ fs     = require 'fs'
 CSON   = require 'season'
 {File} = require 'pathwatcher'
 path   = require 'path'
-CSONParser = require 'cson-safe'
+CSONParser = require 'cson-parser'
 
 module.exports =
   grammarConfig: {}
