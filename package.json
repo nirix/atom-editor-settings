@@ -11,6 +11,6 @@
   "dependencies": {
     "season": "~5.1.0",
     "cson-parser": "~1.0.0",
-    "pathwatcher": "~4.1.0"
+    "pathwatcher": "~4.4.0"
   }
 }
