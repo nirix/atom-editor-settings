@@ -1,4 +1,4 @@
-{$}    = require 'atom'
+{$}    = require 'atom-space-pen-views'
 fs     = require 'fs'
 CSON   = require 'season'
 {File} = require 'pathwatcher'
