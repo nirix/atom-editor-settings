@@ -1,4 +1,3 @@
-{$}    = require 'atom'
 fs     = require 'fs'
 CSON   = require 'season'
 {File} = require 'pathwatcher'
