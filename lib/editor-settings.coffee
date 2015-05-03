@@ -182,7 +182,7 @@ module.exports =
     @configDir + grammarName + ".cson"
 
   editCurrentGrammarConfig: ->
-    grammar     = atom.workspace.getActiveEditor()?.getGrammar()
+    grammar     = atom.workspace.getActiveTextEditor()?.getGrammar()
     grammarName = @fileNameFor(grammar.name)
     filepath    = @filePathFor(grammarName)
 
