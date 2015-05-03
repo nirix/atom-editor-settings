@@ -1,6 +1,6 @@
 fs     = require 'fs'
 CSON   = require 'season'
-{File} = require 'pathwatcher'
+PathWatcher = require 'pathwatcher'
 path   = require 'path'
 CSONParser = require 'cson-parser'
 
@@ -158,16 +158,15 @@ module.exports =
   # Watches the grammar config file for changes and reloads it.
   watchGrammarConfig: (grammarName) ->
     unless @watching[grammarName]?
-      file = new File(@filePathFor(grammarName))
-
       # Watch for file changes and reload the config and update
       # the current editor, which may not be the config file,
       # but let's just do it anyway.
-      file.on 'moved removed contents-changed', =>
+
+      PathWatcher.watch @filePathFor(grammarName), (event, path) =>
         @loadGrammarConfig grammarName, =>
           @updateCurrentEditor()
 
-      @watching[grammarName] = file
+      @watching[grammarName] = true
 
   # Updates the currently active editor config.
   updateCurrentEditor: ->
