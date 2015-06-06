@@ -11,14 +11,18 @@ module.exports =
   activate: ->
     @configDir = atom.getConfigDirPath() + "/grammar-config/"
     @baseConfig = atom.config.configFilePath
+    @grammarChange = null
 
     # Create config directory if it doesn't exist.
     if not fs.existsSync @configDir
       fs.mkdirSync @configDir
 
-    editor = atom.workspace.getActiveTextEditor()
-
-    atom.workspace.onDidChangeActivePaneItem => @updateCurrentEditor()
+    atom.workspace.onDidChangeActivePaneItem =>
+      #@updateCurrentEditor() # don't update settings here, because the follow event will got notified each time change tab.
+      editor = atom.workspace.getActiveTextEditor()
+      @grammarChange.dispose() if @grammarChange
+      @grammarChange = editor.observeGrammar (grammar)=>
+        @setEditorConfig editor, grammar
 
     atom.commands.add 'atom-text-editor',
       'editor-settings:open-grammar-config': => @editCurrentGrammarConfig()
@@ -33,11 +37,12 @@ module.exports =
 
     grammarName = @fileNameFor(editor.getGrammar().name)
 
-    if @grammarConfig[grammarName]
-      @configureEditor(editor, @grammarConfig[grammarName])
+    if @grammarConfig[grammarName]?
+      @configureEditor(editor)
     else
       @loadGrammarConfig grammarName, =>
-        @configureEditor(editor, @grammarConfig[grammarName])
+        @configureEditor(editor)
+
 
   # Load directory config
   loadDirectoryConfig: (path) ->
@@ -67,7 +72,7 @@ module.exports =
     return config
 
   # Configures the editor with the passed configuration.
-  configureEditor: (editor, config) ->
+  configureEditor: (editor) ->
     grammar       = editor.getGrammar()
     grammarName   = @fileNameFor(grammar.name)
     fileExtension = path.extname(editor.getPath()).substring(1)
@@ -153,7 +158,9 @@ module.exports =
           if config
             config.extensionConfig = {} unless config.extensionConfig?
             @grammarConfig[grammarName] = config
-            callback()
+          callback() # needes to be called when changing grammar and no grammar-config for new grammar.
+      else
+        callback() # needes to be called when changing  and no grammar-config for new grammar.
 
   # Watches the grammar config file for changes and reloads it.
   watchGrammarConfig: (grammarName) ->
