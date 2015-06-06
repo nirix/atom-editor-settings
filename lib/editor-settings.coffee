@@ -119,10 +119,10 @@ module.exports =
     editor.setEncoding    config.encoding  if config.encoding?
 
     # Invisible characters
-    if not config.showInvisibles
-      editor.displayBuffer.setInvisibles false
-    else
-      editor.displayBuffer.setInvisibles config.invisibles
+    #if not config.showInvisibles
+    #  editor.displayBuffer.setInvisibles false
+    #else
+    #  editor.displayBuffer.setInvisibles config.invisibles
 
   # Merge two configurations together.
   mergeConfig: (first, second) ->
