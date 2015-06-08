@@ -20,7 +20,6 @@ module.exports =
     atom.workspace.onDidChangeActivePaneItem =>
       #@updateCurrentEditor() # don't update settings here, because the follow event will got notified each time change tab.
       editor = atom.workspace.getActiveTextEditor()
-      console.log(editor)
       return unless editor?
       @grammarChange.dispose() if @grammarChange
       @grammarChange = editor.observeGrammar (grammar)=>
