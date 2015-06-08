@@ -20,6 +20,8 @@ module.exports =
     atom.workspace.onDidChangeActivePaneItem =>
       #@updateCurrentEditor() # don't update settings here, because the follow event will got notified each time change tab.
       editor = atom.workspace.getActiveTextEditor()
+      console.log(editor)
+      return unless editor?
       @grammarChange.dispose() if @grammarChange
       @grammarChange = editor.observeGrammar (grammar)=>
         @setEditorConfig editor, grammar
@@ -189,7 +191,9 @@ module.exports =
     @configDir + grammarName + ".cson"
 
   editCurrentGrammarConfig: ->
-    grammar     = atom.workspace.getActiveTextEditor()?.getGrammar()
+    editor = atom.workspace.getActiveTextEditor()
+    return unless editor?
+    grammar     = editor.getGrammar()
     grammarName = @fileNameFor(grammar.name)
     filepath    = @filePathFor(grammarName)
 
