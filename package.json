@@ -12,5 +12,10 @@
     "season": "~5.1.0",
     "cson-parser": "~1.0.0",
     "pathwatcher": "~4.4.0"
+  },
+  "activationCommands": {
+    "atom-text-editor": [
+      "editor-settings:open-grammar-config"
+    ]
   }
 }
