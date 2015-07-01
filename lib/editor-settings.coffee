@@ -122,17 +122,6 @@ module.exports =
 
     return config
 
-  # Clone object
-  clone: (obj) ->
-    return obj if obj is null or typeof (obj) isnt "object"
-
-    temp = new obj.constructor()
-
-    for key of obj
-      temp[key] = @clone(obj[key])
-
-    return temp
-
   # Merge two objects
   merge: (first, second) ->
     config = {}
