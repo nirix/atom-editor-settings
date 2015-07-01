@@ -127,10 +127,16 @@ module.exports =
     config = {}
 
     for a, b of first
-      config[a] = b
+      if typeof b is "object"
+        config[a] = @merge {}, b
+      else
+        config[a] = b
 
     for c, d of second
-      config[c] = d
+      if typeof d is "object"
+        config[c] = @merge {}, d
+      else
+        config[c] = d
 
     return config
 
