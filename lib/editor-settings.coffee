@@ -52,7 +52,13 @@ module.exports =
     if editor?
       config = @loadAllConfigFiles(editor.getGrammar().name)
 
-      editor.setTabLength config.tabLength if config.tabLength
+      editor.setTabLength   config.tabLength if config.tabLength
+      editor.setSoftTabs    config.softTabs  if config.softTabs?
+      editor.setSoftWrapped config.softWrap  if config.softWrap?
+
+      if editor.buffer?
+        buffer = editor.buffer
+        buffer.setEncoding config.encoding if config.encoding
 
   # Load the contents of all config files:
   #   - grammar
