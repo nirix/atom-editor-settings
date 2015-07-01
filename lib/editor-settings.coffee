@@ -33,6 +33,10 @@ module.exports =
     atom.workspace.onDidChangeActivePaneItem =>
       @reconfigureCurrentEditor()
 
+    atom.workspace.observeTextEditors (editor) =>
+      editor.observeGrammar =>
+        @reconfigureCurrentEditor()
+
     @reconfigureCurrentEditor()
 
   debug: (msg) ->
@@ -88,6 +92,8 @@ module.exports =
       grammarConfig = @loadConfig(@grammarConfigPath(grammarName))
       @debug 'loading grammar config: ' + grammarName
       config = @merge config, grammarConfig
+    else
+      @debug 'no grammar config for: ' + grammarName
 
     # Project settings
     if atom.project?.rootDirectories?[0].path?
