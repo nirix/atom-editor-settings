@@ -116,9 +116,9 @@ module.exports =
       @debug 'merging grammar config: ' + grammarName
       config = @merge config, config.grammarConfig[grammarName]
 
-      if config.extensionConfig?[fileExtension]? and fileExtension.length > 0
-        @debug 'merging file extension config: ' + fileExtension
-        config = @merge config, config.extensionConfig[fileExtension]
+    if config.extensionConfig?[fileExtension]? and fileExtension.length > 0
+      @debug 'merging file extension config: ' + fileExtension
+      config = @merge config, config.extensionConfig[fileExtension]
 
     return config
 
