@@ -26,7 +26,7 @@ module.exports =
 
     @watching  = []
     @configDir = atom.getConfigDirPath() + "/grammar-config"
-    @enableDebug = true
+    @enableDebug = false
 
     @registerCommands()
 
