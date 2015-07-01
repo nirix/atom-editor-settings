@@ -182,4 +182,7 @@ module.exports =
       @watchFile path
 
       if contents.length > 1
-        return CSONParser.parse(contents)
+        try
+          return CSONParser.parse(contents)
+        catch error
+          console.log error
