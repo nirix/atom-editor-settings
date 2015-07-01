@@ -1,203 +1,179 @@
-fs     = require 'fs'
-CSON   = require 'season'
+fs          = require 'fs'
+path        = require 'path'
 PathWatcher = require 'pathwatcher'
-path   = require 'path'
-CSONParser = require 'cson-parser'
+CSONParser  = require 'cson-parser'
+
+# Config file examples:
+#
+# CoffeeScript grammar config example:
+#   tabLength: 2
+#   extensionConfig:
+#     cson:
+#       tabLength: 4
+#
+# Project / Directory config example:
+#   tabLength: 2
+#   grammarConfig:
+#     'CoffeeScript':
+#       tabLength 4
+#       extensionConfig:
+#         cson:
+#           tabLength 8
 
 module.exports =
-  grammarConfig: {}
-  watching: []
-
   activate: ->
-    @configDir = atom.getConfigDirPath() + "/grammar-config/"
-    @baseConfig = atom.config.configFilePath
-    @grammarChange = null
+    console.log 'activate editor-settings'
 
-    # Create config directory if it doesn't exist.
-    if not fs.existsSync @configDir
-      fs.mkdirSync @configDir
+    @watching  = []
+    @configDir = atom.getConfigDirPath() + "/grammar-config"
+    @enableDebug = true
+
+    @registerCommands()
 
     atom.workspace.onDidChangeActivePaneItem =>
-      #@updateCurrentEditor() # don't update settings here, because the follow event will got notified each time change tab.
-      editor = atom.workspace.getActiveTextEditor()
-      return unless editor?
-      @grammarChange.dispose() if @grammarChange
-      @grammarChange = editor.observeGrammar (grammar)=>
-        @setEditorConfig editor, grammar
+      @reconfigureCurrentEditor()
 
+    @reconfigureCurrentEditor()
+
+  debug: (msg) ->
+    if @enableDebug
+      console.log msg
+
+  registerCommands: ->
     atom.commands.add 'atom-text-editor',
       'editor-settings:open-grammar-config': => @editCurrentGrammarConfig()
 
-    @updateCurrentEditor()
+  # Reconfigure the current editor
+  reconfigureCurrentEditor: ->
+    editor = atom.workspace.getActiveTextEditor()
 
-    # atom.workspace.command 'editor-settings:open-grammar-config', => @editCurrentGrammarConfig()
+    @debug "reconfigure current editor"
 
-  # Sets the config for the passed editor.
-  setEditorConfig: (editor) ->
-    return unless editor
+    if editor?
+      config = @loadAllConfigFiles(editor.getGrammar().name)
 
-    grammarName = @fileNameFor(editor.getGrammar().name)
+      editor.setTabLength config.tabLength if config.tabLength
 
-    if @grammarConfig[grammarName]?
-      @configureEditor(editor)
-    else
-      @loadGrammarConfig grammarName, =>
-        @configureEditor(editor)
+  # Load the contents of all config files:
+  #   - grammar
+  #   - project
+  #   - current file directory
+  loadAllConfigFiles: (grammarName) ->
+    editor = atom.workspace.getActiveTextEditor()
 
+    # File extesion
+    fileExtension = path.extname(editor.getPath()).substring(1)
+    @debug 'current editor file extension: ' + fileExtension
 
-  # Load directory config
-  loadDirectoryConfig: (path) ->
-    filePath = path + "/.editor-settings"
-    if fs.existsSync(filePath)
-      contents = fs.readFileSync(filePath)
+    grammarConfig   = {}
+    projectConfig   = {}
+    directoryConfig = {}
 
-      if contents.length > 1
-        CSONParser.parse(contents)
+    config = {}
 
-  # Loads the project specific configuration
-  loadProjectConfig: ->
-    @loadDirectoryConfig(atom.project.rootDirectory.path)
+    # Default and current Atom settings
+    defaults = @merge atom.config.defaultSettings.editor,
+                      atom.config.settings.editor
 
-  # Merges together the grammar and file extension specific settings from an
-  # `.editor-settings` file.
-  mergeDirectoryConfig: (directoryConfig, grammarName, fileExtension) ->
-    config = directoryConfig
+    config = @merge config, defaults
 
-    if directoryConfig?[grammarName]?
-      grammarConfig = directoryConfig[grammarName]
-      config = @mergeConfig(config, grammarConfig)
+    # Grammar settings
+    if fs.existsSync @grammarConfigPath(grammarName)
+      grammarConfig = @loadConfig(@grammarConfigPath(grammarName))
+      @debug 'loading grammar config: ' + grammarName
+      config = @merge config, grammarConfig
 
-      if grammarConfig.extensionConfig?[fileExtension]?
-        config = @mergeConfig(config, grammarConfig.extensionConfig[fileExtension])
+    # Project settings
+    if atom.project?.rootDirectories?[0].path?
+      projectConfigPath = atom.project.rootDirectories[0].path + "/.editor-settings"
+
+      if projectConfig = @loadConfig(projectConfigPath)
+        @debug 'loading project config: ' + projectConfigPath
+        config = @merge config, projectConfig
+
+    # Directory settings
+    if editor.buffer?.file?.getParent()?.path?
+      directoryPath       = editor.buffer.file.getParent().path
+      directoryConfigPath = directoryPath + "/.editor-settings"
+
+      if directoryConfig = @loadConfig(directoryConfigPath)
+        @debug 'loading directory config: ' + directoryConfigPath
+        config = @merge config, directoryConfig
+
+    if config.grammarConfig?[grammarName]?
+      @debug 'merging grammar config: ' + grammarName
+      config = @merge config, config.grammarConfig[grammarName]
+
+      if config.extensionConfig?[fileExtension]? and fileExtension.length > 0
+        @debug 'merging file extension config: ' + fileExtension
+        config = @merge config, config.extensionConfig[fileExtension]
 
     return config
 
-  # Configures the editor with the passed configuration.
-  configureEditor: (editor) ->
-    grammar       = editor.getGrammar()
-    grammarName   = @fileNameFor(grammar.name)
-    fileExtension = path.extname(editor.getPath()).substring(1)
+  # Clone object
+  clone: (obj) ->
+    return obj if obj is null or typeof (obj) isnt "object"
 
-    # Get defaults
-    config = @mergeConfig atom.config.defaultSettings.editor,
-                          atom.config.settings.editor
+    temp = new obj.constructor()
 
-    # Grammar config
-    if @grammarConfig[grammarName]?
-      config = @mergeConfig config, @grammarConfig[grammarName]
+    for key of obj
+      temp[key] = @clone(obj[key])
 
-      # Extension specific
-      if config.extensionConfig[fileExtension]?
-        config = @mergeConfig config, config.extensionConfig[fileExtension]
+    return temp
 
-    # Project config
-    if atom.project?.path?
-      projectConfig = @loadProjectConfig()
-
-      if projectConfig?
-        projectConfig = @mergeDirectoryConfig(projectConfig, grammarName, fileExtension)
-        config = @mergeConfig(config, projectConfig)
-
-    # Load directory config
-    if editor?.buffer?.file?.getParent()?.path?
-      directoryPath = editor.buffer.file.getParent().path
-      directoryConfig = @loadDirectoryConfig(directoryPath)
-
-      if directoryConfig?
-        directoryConfig = @mergeDirectoryConfig(directoryConfig, grammarName, fileExtension)
-        config = @mergeConfig(config, directoryConfig)
-
-    # Set the config
-    @setConfig editor, config
-
-  # Sets the config for the passed editor from the passed config.
-  setConfig: (editor, config) ->
-    # View related config
-    # view.setFontSize        config.fontSize        if config.fontSize?
-    # view.setFontFamily      config.fontFamily      if config.fontFamily?
-    # view.setShowIndentGuide config.showIndentGuide if config.showIndentGuide?
-    # view.setLineHeight      config.lineHeight      if config.lineHeight?
-
-    # Editor related config
-    editor.setTabLength config.tabLength if config.tabLength?
-    editor.setSoftTabs    config.softTabs  if config.softTabs?
-    editor.setSoftWrapped config.softWrap  if config.softWrap?
-    editor.setEncoding    config.encoding  if config.encoding?
-
-    # Invisible characters
-    #if not config.showInvisibles
-    #  editor.displayBuffer.setInvisibles false
-    #else
-    #  editor.displayBuffer.setInvisibles config.invisibles
-
-  # Merge two configurations together.
-  mergeConfig: (first, second) ->
+  # Merge two objects
+  merge: (first, second) ->
     config = {}
 
     for a, b of first
-      if typeof b == 'object'
-        config[a] = @mergeConfig {}, b
-      else
-        config[a] = b
+      config[a] = b
 
     for c, d of second
-      if typeof d == 'object'
-        config[c] = @mergeConfig {}, d
-      else
-        config[c] = d
+      config[c] = d
 
     return config
 
-  # Loads the config for the passed grammar.
-  loadGrammarConfig: (grammarName, callback) ->
-    filename = @filePathFor(grammarName)
+  # Open current editors grammar config file
+  editCurrentGrammarConfig: ->
+    workspace = atom.workspace?
 
-    fs.exists filename, (exists) =>
-      if exists
-        @watchGrammarConfig grammarName
-        CSON.readFile filename, (error, config = {}) =>
-          if config
-            config.extensionConfig = {} unless config.extensionConfig?
-            @grammarConfig[grammarName] = config
-          callback() # needes to be called when changing grammar and no grammar-config for new grammar.
-      else
-        callback() # needes to be called when changing  and no grammar-config for new grammar.
+    return unless workspace
 
-  # Watches the grammar config file for changes and reloads it.
-  watchGrammarConfig: (grammarName) ->
-    unless @watching[grammarName]?
-      # Watch for file changes and reload the config and update
-      # the current editor, which may not be the config file,
-      # but let's just do it anyway.
-
-      PathWatcher.watch @filePathFor(grammarName), (event, path) =>
-        @loadGrammarConfig grammarName, =>
-          @updateCurrentEditor()
-
-      @watching[grammarName] = true
-
-  # Updates the currently active editor config.
-  updateCurrentEditor: ->
     editor = atom.workspace.getActiveTextEditor()
-    @setEditorConfig editor
+
+    if editor?
+      grammar  = editor.getGrammar()
+      filePath = @grammarConfigPath(grammar.name)
+
+      if not fs.existsSync filePath
+        fs.writeFileSync filePath, ''
+
+      @watchFile filePath
+      atom.workspace.open filePath
+
+  # Watch file
+  watchFile: (path) ->
+    unless @watching[path]
+      PathWatcher.watch path, (event, path) =>
+        @debug 'watched file updated: ' + path
+        @reconfigureCurrentEditor()
+
+      @debug 'watching: ' + path
+      @watching[path] = true
 
   # Converts the grammar name to a file name.
-  fileNameFor: (grammarName) ->
-    grammarName.replace(/\s+/gi, '-').toLowerCase()
+  fileNameFor: (text) ->
+    text.replace(/\s+/gi, '-').toLowerCase()
 
-  # Returns the path for the grammar config file.
-  filePathFor: (grammarName) ->
-    @configDir + grammarName + ".cson"
+  # Returns full config file path for specified grammar
+  grammarConfigPath: (name) ->
+    fileName = @fileNameFor(name)
+    return @configDir + "/" + fileName + ".cson"
 
-  editCurrentGrammarConfig: ->
-    editor = atom.workspace.getActiveTextEditor()
-    return unless editor?
-    grammar     = editor.getGrammar()
-    grammarName = @fileNameFor(grammar.name)
-    filepath    = @filePathFor(grammarName)
+  loadConfig: (path) ->
+    if fs.existsSync(path)
+      contents = fs.readFileSync(path)
+      @watchFile path
 
-    if not fs.existsSync filepath
-      fs.writeFileSync filepath, ''
-      @watchGrammarConfig grammarName
-
-    atom.workspace.open filepath
+      if contents.length > 1
+        return CSONParser.parse(contents)
