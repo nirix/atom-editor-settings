@@ -1,6 +1,5 @@
 fs          = require 'fs'
 path        = require 'path'
-PathWatcher = require 'pathwatcher'
 CSONParser  = require 'cson-parser'
 
 # Config file examples:
@@ -161,7 +160,7 @@ module.exports =
   # Watch file
   watchFile: (path) ->
     unless @watching[path]
-      PathWatcher.watch path, (event, path) =>
+      fs.watch path, =>
         @debug 'watched file updated: ' + path
         @reconfigureCurrentEditor()
 
