@@ -27,6 +27,10 @@ module.exports =
     @configDir = atom.getConfigDirPath() + "/grammar-config"
     @enableDebug = false
 
+    # Create config directory if it doesn't exist.
+    if not fs.existsSync @configDir
+      fs.mkdirSync @configDir
+
     @registerCommands()
 
     atom.workspace.onDidChangeActivePaneItem =>
