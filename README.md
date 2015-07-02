@@ -20,15 +20,15 @@ The API for setting editor settings currently only supports:
 
 ### Example configuration
 
-The following example is for CoffeeScript, it sets the tab length and shows invisible
-characters, however it hides invisible characters if the file extension is `.cson`.
+The following example is for CoffeeScript, it sets the tab length to `2`, but if
+the file extension is `.cson` it sets it to `4`.
 
     tabLength: 2
     extensionConfig:
       cson:
         tabLength: 4
 
-#### Example project configuration
+#### Example project and directory configuration
 
 All options not nested under a specific grammar are used for all grammar and extensions.
 
