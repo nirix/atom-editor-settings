@@ -5,6 +5,17 @@
   "description": "Editor settings per-language, extension and directory.",
   "repository": "https://github.com/nirix/atom-editor-settings",
   "license": "MIT",
+  "keywords": [
+    "editor",
+    "settings",
+    "syntax",
+    "grammar",
+    "language",
+    "project",
+    "directory",
+    "specific",
+    "context"
+  ],
   "engines": {
     "atom": ">0.50.0"
   },
