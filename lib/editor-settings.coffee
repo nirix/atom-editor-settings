@@ -20,12 +20,16 @@ CSONParser  = require 'cson-parser'
 #           tabLength 8
 
 module.exports =
+  config:
+    debug:
+      type: 'boolean'
+      default: false
+
   activate: ->
     console.log 'activate editor-settings'
 
     @watching  = []
     @configDir = atom.getConfigDirPath() + "/grammar-config"
-    @enableDebug = false
 
     # Create config directory if it doesn't exist.
     if not fs.existsSync @configDir
@@ -43,7 +47,7 @@ module.exports =
     @reconfigureCurrentEditor()
 
   debug: (msg) ->
-    if @enableDebug
+    if atom.config.get('editor-settings.debug')
       console.log msg
 
   registerCommands: ->
