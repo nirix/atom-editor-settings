@@ -28,6 +28,14 @@ the file extension is `.cson` it sets it to `4`.
       cson:
         tabLength: 4
 
+#### Experimental settings:
+
+    fontFamily: 'Source Code Pro'
+    grammarConfig:
+      'GitHub Markdown':
+        fontFamily: 'monospace'
+
+
 #### Example project and directory configuration
 
 All options not nested under a specific grammar are used for all grammar and extensions.
