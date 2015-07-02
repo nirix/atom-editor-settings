@@ -48,4 +48,8 @@ All options not nested under a specific grammar are used for all grammar and ext
 - Per-project support
 - Per-directory support
 
+### Planned
+
+- Change configuration directory
+
 If there is a feature you'd like added simply create an issue or fork and implement it and send a pull request.
