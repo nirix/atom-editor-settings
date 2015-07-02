@@ -82,10 +82,6 @@ module.exports =
     fileExtension = path.extname(editor.getPath()).substring(1)
     @debug 'current editor file extension: ' + fileExtension
 
-    grammarConfig   = {}
-    projectConfig   = {}
-    directoryConfig = {}
-
     config = {}
 
     # Default and current Atom settings
