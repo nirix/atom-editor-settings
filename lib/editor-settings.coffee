@@ -103,7 +103,7 @@ module.exports =
       @debug 'no grammar config for: ' + grammarName
 
     # Project settings
-    if atom.project?.rootDirectories?[0].path?
+    if atom.project?.rootDirectories?[0]?.path?
       projectConfigPath = atom.project.rootDirectories[0].path + "/.editor-settings"
 
       if projectConfig = @loadConfig(projectConfigPath)
