@@ -9,6 +9,8 @@ in the main Atom configuration directory with a lower-case file name format.
 
 For example, the config file for CoffeeScript would be `coffeescript.cson`.
 
+For a per directory based configuration, create a `.editor-settings` file in the concerned directories.
+
 ### Supported settings
 
 The API for setting editor settings currently only supports:
