@@ -66,6 +66,7 @@ module.exports =
       editor.setTabLength   config.tabLength if config.tabLength?
       editor.setSoftTabs    config.softTabs  if config.softTabs?
       editor.setSoftWrapped config.softWrap  if config.softWrap?
+      atom.config.settings.core.themes = [config.themes[0], config.themes[1]] if config.themes?
 
       if editor.buffer?
         buffer = editor.buffer
