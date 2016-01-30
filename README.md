@@ -19,6 +19,7 @@ The API for setting editor settings currently only supports:
 - Soft/hard tabs (softTabs)
 - Soft wrap (softWrap)
 - Encoding (encoding)
+- Atom and Syntax theme (themes)
 
 ### Example configuration
 
@@ -43,6 +44,7 @@ the file extension is `.cson` it sets it to `4`.
 All options not nested under a specific grammar are used for all grammar and extensions.
 
     tabLength: 2
+    themes: ['atom-light-ui', 'atom-light-syntax']
     grammarConfig:
       'PHP':
         tabLength: 4
