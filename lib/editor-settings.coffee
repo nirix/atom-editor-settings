@@ -75,6 +75,7 @@ module.exports =
       view = atom.views.getView(editor)
       if view?
         view.style.fontFamily = config.fontFamily if config.fontFamily?
+        view.style.fontSize = config.fontSize if config.fontSize?
 
   # Load the contents of all config files:
   #   - grammar
