@@ -1,7 +1,7 @@
 {
   "name": "editor-settings",
   "main": "./lib/editor-settings",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Editor settings per-language, extension and directory.",
   "repository": "https://github.com/nirix/atom-editor-settings",
   "license": "MIT",
