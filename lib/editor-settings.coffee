@@ -107,12 +107,14 @@ module.exports =
     # Project settings
     if atom.project?.getPaths()
       projectPaths = atom.project.getPaths()
-      directoryPath = editor.buffer.file.getParent().path
 
-      for i of projectPaths
-        if directoryPath.indexOf(projectPaths[i]) == 0
-          projectConfigPath = projectPaths[i] + '/.editor-settings'
-          break
+      if editor.buffer.file?
+        directoryPath = editor.buffer.file.getParent().path
+
+        for i of projectPaths
+          if directoryPath.indexOf(projectPaths[i]) == 0
+            projectConfigPath = projectPaths[i] + '/.editor-settings'
+            break
 
       if projectConfig = @loadConfig(projectConfigPath)
         @debug 'loading project config: ' + projectConfigPath
