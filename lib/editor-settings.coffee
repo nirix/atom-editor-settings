@@ -105,7 +105,7 @@ module.exports =
       @debug 'no grammar config for: ' + grammarName
 
     # Project settings
-    if atom.project?.getPaths()
+    if atom.project?.getPaths() && editor.buffer.file?.getParent()
       projectPaths = atom.project.getPaths()
 
       if editor.buffer.file?
