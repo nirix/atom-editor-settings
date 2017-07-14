@@ -85,8 +85,13 @@ module.exports =
     editor = atom.workspace.getActiveTextEditor()
 
     # File extesion
-    fileExtension = path.extname(editor.getPath()).substring(1)
-    @debug 'current editor file extension: ' + fileExtension
+    # Deprecation notice showed when new window w/o grammar is opened
+    # Easy fix, set untitled window to plain text
+    if 'undefined' == typeof editor.getPath()
+      @debug 'new window without grammar, setting plan text'
+      fileExtension = 'txt'
+    else
+      fileExtension = path.extname(editor.getPath()).substring(1)
 
     config = {}
 
